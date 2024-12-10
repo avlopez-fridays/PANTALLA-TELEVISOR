@@ -1,0 +1,52 @@
+/* Ajustes generales para la tabla */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+table th, table td {
+    padding: 12px 15px;
+    text-align: center;
+    text-transform: uppercase;
+}
+table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: bold;
+    font-size: 16px;
+}
+table td {
+    background-color: #ffffff;
+    color: #212529;
+    border: 1px solid #ddd;
+}
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Colores de filas según el código de color */
+.color-1 { /* Anaranjado */
+    background-color: #f39c12; /* Anaranjado */
+}
+
+.color-2 { /* Rojo */
+    background-color: #dc1600; /* Rojo */
+}
+
+.color-3 { /* Amarillo */
+    background-color: #f1c40f; /* Amarillo */
+}
+
+.color-0 { /* Sin color (por defecto o no asignado) */
+    background-color: #ffffff; /* Fondo blanco */
+    color: #212529; /* Texto normal */
+}
+
+/* Para asegurar que la columna de alert no cambie de color */
+table td.alert-column {
+    background-color: #ffffff !important; /* Fondo blanco para la columna de alert */
+}
+
+/* Puedes agregar un estilo hover si lo deseas para las filas coloreadas */
+.color-1:hover, .color-2:hover, .color-3:hover, .color-0:hover {
+    background-color: #ddd; /* Fondo gris al pasar el mouse */
+}
