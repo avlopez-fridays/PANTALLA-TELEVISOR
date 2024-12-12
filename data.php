@@ -1,12 +1,11 @@
 <?php
-
 include './config/db.php';
 
 $color1Count = 0;
-$color2Count = 0;  // Variable para contar los registros con color-2
+$color2Count = 0;
 $color3Count = 0;
 $totalLotes = 0;
-$tableRows = '';    // Variable para almacenar las filas de la tabla
+$lotes = [];
 
 $sql = 'EXEC dbo.GetProductosPorColor';
 $query = sqlsrv_query($conn, $sql);
@@ -15,14 +14,11 @@ if (!$query) {
     die('Error en la consulta: ' . print_r(sqlsrv_errors(), true));
 }
 
-// Se ejecuta solo una vez la consulta
 while ($row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC)) {
-    // Verificar si la cantidad es igual a 0, en cuyo caso no mostrar la fila
     if ($row['Cantidad'] == 0) {
-        continue;  // Saltar esta iteración del ciclo
+        continue;  // Saltar esta iteración del ciclo si la cantidad es 0
     }
 
-    // Asignar clase de color para las filas
     $colorClass = '';
     $alertIcon = '';
 
@@ -30,21 +26,17 @@ while ($row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC)) {
 
     if ($row['ColorCodigo'] == 2) {
         $alertIcon = '<i class="bi bi-exclamation-triangle text-danger"></i>';
-       $color2Count++;  // Incrementar el contador para color-2
+        $color2Count++;
     }
 
     if ($row['ColorCodigo'] == 1) {
-      //  $alertIcon = '<i class="bi bi-exclamation-triangle text-danger"></i>';
-       $color1Count++;  // Incrementar el contador para color-2
+        $color1Count++;
     }
 
     if ($row['ColorCodigo'] == 3) {
-        //  $alertIcon = '<i class="bi bi-exclamation-triangle text-danger"></i>';
-         $color3Count++;  // Incrementar el contador para color-2
-      }
-  
+        $color3Count++;
+    }
 
-    // Usar un array para los colores
     $colorClasses = [
         1 => 'color-1',
         2 => 'color-2',
@@ -53,33 +45,28 @@ while ($row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC)) {
 
     $colorClass = isset($colorClasses[$row['ColorCodigo']]) ? $colorClasses[$row['ColorCodigo']] : 'color-0';
 
-    // Convertir fechas de SQL Server a formato legible en PHP
     $fecha = $row['Fecha'] ? $row['Fecha']->format('Y-m-d') : '';
     $vence = $row['Vence'] ? $row['Vence']->format('Y-m-d') : '';
 
-    // Generar las filas de la tabla
-    $tableRows .= '<tr class="' . $colorClass . '">';
-    $tableRows .= '<td class="alert-column">' . $alertIcon . '</td>';
-    $tableRows .= '<td>' . htmlspecialchars($row['Lote']) . '</td>';
-    $tableRows .= '<td>' . htmlspecialchars($row['CodigoProducto']) . '</td>';
-    $tableRows .= '<td>' . htmlspecialchars($row['Nombre']) . '</td>';
-    $tableRows .= '<td>' . htmlspecialchars($fecha) . '</td>';
-    $tableRows .= '<td>' . htmlspecialchars($vence) . '</td>';
-    //$tableRows .= '<td>' . htmlspecialchars($row['Dias']) . '</td>';
-    $tableRows .= '<td>' . htmlspecialchars($row['Cantidad']) . '</td>';
-    $tableRows .= '</tr>';
+    $lotes[] = [
+        'lote' => htmlspecialchars($row['Lote']),
+        'codigoProducto' => htmlspecialchars($row['CodigoProducto']),
+        'nombre' => htmlspecialchars($row['Nombre']),
+        'fecha' => $fecha,
+        'vence' => $vence,
+        'cantidad' => htmlspecialchars($row['Cantidad']),
+        'colorClass' => $colorClass,
+        'alertIcon' => $alertIcon
+    ];
 }
 
 sqlsrv_close($conn);
 
-// Retornar la tabla y el número de lotes vencidos en formato JSON
 echo json_encode([
     'color2Count' => $color2Count,
     'color1Count' => $color1Count,
     'color3Count' => $color3Count,
-    'totalLotes' => $totalLotes, 
-    'table' => $tableRows
+    'totalLotes' => $totalLotes,
+    'lotes' => $lotes
 ]);
-
-
 ?>

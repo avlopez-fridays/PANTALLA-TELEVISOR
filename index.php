@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/estilo.css" rel="stylesheet">
-    <link href="assets/css/styles.css" rel="stylesheet">     <!-- Estilo de las alertas -->
+    <link href="assets/css/styles.css" rel="stylesheet">
 </head>
 <body>
     <!-- Contenedor de Alertas -->
@@ -59,22 +59,67 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        let allLotes = [];
+        let currentPage = 0;
+        const rowsPerPage = 10;
+
+        // Función para cargar los datos y dividirlos en grupos de 10
         function loadTableData() {
             fetch('data.php')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('table-data').innerHTML = data.table;
+                    allLotes = data.lotes;  // Guarda todos los lotes
+                    currentPage = 0; // Reinicia la página
 
-                    document.getElementById('lotes-vencidos').textContent = data.color2Count;
-                    document.getElementById('vencen-hoy').textContent = data.color1Count;
-                    document.getElementById('proximo-a-vencer').textContent = data.color3Count;
-                    document.getElementById('total-lotes').textContent = data.totalLotes;
+                    updateTable(); // Muestra los primeros 10 lotes
+                    updateAlerts(data); // Actualiza las alertas
                 })
                 .catch(error => console.error('Error al cargar los datos:', error));
         }
 
-        setInterval(loadTableData, 10000);
+        // Función para actualizar la tabla con los lotes correspondientes
+        function updateTable() {
+            const start = currentPage * rowsPerPage;
+            const end = start + rowsPerPage;
+            const currentLotes = allLotes.slice(start, end); // Muestra solo los lotes correspondientes a la página
+
+            let tableRows = '';
+            currentLotes.forEach((row, index) => {
+                tableRows += `<tr class="${row.colorClass}">
+                    <td class="alert-column">${row.alertIcon}</td>
+                    <td>${row.lote}</td>
+                    <td>${row.codigoProducto}</td>
+                    <td>${row.nombre}</td>
+                    <td>${row.fecha}</td>
+                    <td>${row.vence}</td>
+                    <td>${row.cantidad}</td>
+                </tr>`;
+            });
+
+            document.getElementById('table-data').innerHTML = tableRows;
+        }
+
+        // Función para actualizar las alertas
+        function updateAlerts(data) {
+            document.getElementById('lotes-vencidos').textContent = data.color2Count;
+            document.getElementById('vencen-hoy').textContent = data.color1Count;
+            document.getElementById('proximo-a-vencer').textContent = data.color3Count;
+            document.getElementById('total-lotes').textContent = data.totalLotes;
+        }
+
+        // Función para avanzar a la siguiente página de lotes
+        function nextPage() {
+            currentPage = (currentPage + 1) % Math.ceil(allLotes.length / rowsPerPage);
+            updateTable();
+        }
+
+        // Cargar los datos inicialmente
         loadTableData();
+
+        // Configurar el intervalo para cambiar la página cada 2 minutos
+        setInterval(() => {
+            nextPage();
+        }, 120000); // 120000 ms = 2 minutos
     </script>
 </body>
 </html>
