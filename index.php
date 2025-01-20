@@ -119,7 +119,7 @@
         // Configurar el intervalo para cambiar la página cada 2 minutos
         setInterval(() => {
             nextPage();
-        }, 30000); // 30000 ms = 0.5 minutos
+        }, 20000); // 20000 ms = menos de 0.5 minutos
 
     </script>
 </body>
